@@ -1,5 +1,6 @@
 import requests
-from database import redis_client
+from app.database import redis_client  
+
 
 def get_local_groceries(chat_id):
     location_data = redis_client.get(f"user:{chat_id}:location")

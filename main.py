@@ -34,6 +34,12 @@
 
 from fastapi import FastAPI
 from app.routes import meal_routes, grocery_routes, location_routes, user_routes
+import redis
+redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
+
+# Test connection
+redis_client.set("test_key", "Hello, Redis!")
+print(redis_client.get("test_key"))  
 
 app = FastAPI()
 
