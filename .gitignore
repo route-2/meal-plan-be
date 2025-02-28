@@ -1,0 +1,48 @@
+# 💾 Ignore Python virtual environment
+venv/
+.env
+*.pyc
+__pycache__/
+
+# 🔧 Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# 🚀 Ignore dependency files
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# ⚙️ Ignore log files and cache
+*.log
+logs/
+*.sqlite3
+*.db
+db.sqlite3
+instance/
+debug.log
+
+# 📦 Ignore Python package distributions
+dist/
+build/
+*.egg-info/
+*.egg
+
+# 🔍 Ignore Uvicorn/Pydantic cache
+*.mypy_cache/
+.pytest_cache/
+.cache/
+__pypackages__/
+
+# 🔑 Ignore sensitive credentials
+.env
+*.pem
+*.key
+
+# 🖼️ Ignore media/uploads (if applicable)
+media/
+uploads/
+staticfiles/
