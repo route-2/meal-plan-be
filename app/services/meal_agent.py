@@ -10,7 +10,7 @@ load_dotenv()
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def generate_meal_plan(user_data):
+def generate_meal_plan(user_data: dict):
     """ Generate a meal plan with calorie details per meal. """
 
     home_ingredients = f"Consider these available ingredients: {', '.join(user_data.available_ingredients)}." \
@@ -52,6 +52,7 @@ def generate_meal_plan(user_data):
     )
 
     return response.choices[0].message.content
+    
 
 def store_meal_plan(user_id: str, meal_plan: str):
     """Generate an embedding for the meal plan and store it in Pinecone."""
@@ -62,39 +63,48 @@ def store_meal_plan(user_id: str, meal_plan: str):
     
     embedding = embedding_response.data[0].embedding
 
-    # Store in Pinecone with metadata
     index.upsert([(user_id, embedding, {"meal_plan": meal_plan})])
     return {"message": "Meal plan stored successfully"}
 
 def get_past_meals(user_id: str):
     """Retrieve the most similar past meal plan for personalization."""
-    results = index.query(id=user_id, top_k=1, include_metadata=True) 
+    try:
+        if not user_id:
+            return "No past meal plans found."
+
+        
+        results = index.query(
+            namespace="meal-plans",
+            id=user_id,  
+            include_metadata=True
+        )
+
+        if "matches" in results and results["matches"]:
+            return results["matches"][0]["metadata"].get("meal_plan", "No past meal plans found.")
+
+        return "No past meal plans found."
+
+    except Exception as e:
+        print(f" Pinecone query error: {e}")
+        return "No past meal plans found."
+
+
+def generate_rag_meal_plan(user_data):
+    """ Generate a meal plan using past meals and user preferences """
     
-    if results.matches:
-        return results.matches[0].metadata["meal_plan"]
-    
-    return "No past meal plans found."
-
-
-def generate_rag_meal_plan(user_id: str, user_data):
-    """ Generate a new meal plan using past meals (RAG) """
-    past_meals = get_past_meals(user_id)
-
     prompt = f"""
     Given the following user preferences:
-    - Diet: {user_data.diet}
-    - Cuisine: {user_data.cuisine}
-    - Allergies: {user_data.allergies}
-    - Budget: {user_data.budget}
+    - Diet: {user_data["diet"]}
+    - Cuisine: {", ".join(user_data["cuisinePreference"])}
+    - Food Preference {user_data["foodPreference"]}
+    - Allergies: {user_data["includeIngredients"]}
+    - Budget: {user_data["budget"]}
+    - Ingredients at home: {user_data["ingredientsAtHome"]}
 
-    Use past meal history: {past_meals}
-
-    Generate a new meal plan ensuring variety, balanced nutrition, and no ingredient hallucinations.
+    Generate a meal plan ensuring variety, balanced nutrition, and calorie details.
     """
 
-    client = openai.OpenAI()  
-
-    response = client.chat.completions.create(  
+    response = client.chat.completions.create(
         model="gpt-4-turbo",
         messages=[
             {"role": "system", "content": "You are a meal planning assistant."},
@@ -102,4 +112,6 @@ def generate_rag_meal_plan(user_id: str, user_data):
         ]
     )
 
-    return response.choices[0].message.content 
+    meal_plan = response.choices[0].message.content
+
+    return meal_plan

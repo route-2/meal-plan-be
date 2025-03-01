@@ -29,7 +29,7 @@ def generate_grocery_list(meal_plan: str):
     Almond flour: 1 
     Olive oil: 1 
     
-    **Do not include:** section headers (Breakfast, Lunch, Dinner), calorie counts, or extra descriptions.
+    **Do not include:** section headers grams etc just number (Breakfast, Lunch, Dinner), calorie counts, or extra descriptions.
     """
 
     client = openai.OpenAI()
