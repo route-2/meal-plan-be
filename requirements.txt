@@ -11,5 +11,8 @@ scikit-learn
 pydantic
 torchvision 
 torchaudio
-
+openai
+langchain
+dotenv
+redis
 
