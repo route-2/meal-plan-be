@@ -1,2 +1,15 @@
 pinecone
 
+uvicorn 
+fastapi
+transformers
+torch
+sentence-transformers
+pandas
+numpy
+scikit-learn
+pydantic
+torchvision 
+torchaudio
+
+
