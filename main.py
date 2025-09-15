@@ -37,11 +37,22 @@ from app.routes import meal_routes, grocery_routes, location_routes, user_routes
 import redis
 redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
+from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # your frontend origin(s)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Test connection
 redis_client.set("test_key", "Hello, Redis!")
 print(redis_client.get("test_key"))  
 
-app = FastAPI()
+
 
 # Include Routers
 app.include_router(meal_routes.router, prefix="/meals", tags=["Meals"])

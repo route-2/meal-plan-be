@@ -1,12 +1,16 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
+# app/models/meal.py (optional)
+from pydantic import BaseModel
+from typing import List, Optional
+
+class Preferences(BaseModel):
+    goal: Optional[str] = None
+    diet: Optional[str] = None
+    cuisines: List[str] = []
+    budget: Optional[float] = None
+    exclusions: List[str] = []
+    days: int = 7
+    ingredientsAtHome: List[str] = []
 
 class MealPlanRequest(BaseModel):
-    chat_id: str
-    diet: str
-    sub_goal: str
-    food_preference: str
-    cuisine: str
-    exclude_ingredients: Optional[str] = Field(None, description="Ingredients to exclude")
-    available_ingredients: Optional[List[str]] = Field(None, description="Ingredients at home")
-    calories: Optional[int] = Field(None, description="Daily calorie limit")
+    chat_id: Optional[str] = None
+    preferences: Preferences
