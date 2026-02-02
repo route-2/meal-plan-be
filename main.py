@@ -1,39 +1,13 @@
-# from fastapi import FastAPI
-# import redis
 
-# app = FastAPI()  # ✅ Define the FastAPI app first
-
-# # Initialize Redis
-# redis_client = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
-
-# @app.get("/")
-# def read_root():
-#     return {"message": "Meal Planner Backend Running!"}
-
-# @app.get("/user/{chat_id}")
-# def get_user_state(chat_id: str):
-#     user_data = redis_client.get(f"user:{chat_id}")  # Check for main user data
-#     location_data = redis_client.get(f"user:{chat_id}:location")  # Check for location
-
-#     if user_data:
-#         return {"user_state": user_data}
-#     elif location_data:
-#         return {"location": location_data}  # ✅ Now it correctly returns location if found
-#     else:
-#         return {"message": "No user state found"}
-
-
-# @app.post("/user/{chat_id}")
-# def update_user_state(chat_id: str, data: dict):
-#     redis_client.setex(f"user:{chat_id}", 86400, str(data))  # Store for 24 hours
-#     return {"message": "User state updated"}
-
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
 
 from fastapi import FastAPI
 from app.routes import meal_routes, grocery_routes, location_routes, user_routes
+from app.routes.recipe_routes import router as recipe_router
+from app.routes.debug_routes import router as debug_router
+from app.routes.grounded_meal_routes import router as grounded_meal_router
+from app.routes.memory_routes import router as memory_router
+
+
 import redis
 redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
@@ -42,7 +16,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # your frontend origin(s)
+    allow_origins=["http://localhost:5173", "http://localhost:3000" , ],  # your frontend origin(s)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,6 +33,10 @@ app.include_router(meal_routes.router, prefix="/meals", tags=["Meals"])
 app.include_router(grocery_routes.router, prefix="/groceries", tags=["Groceries"])
 app.include_router(location_routes.router, prefix="/location", tags=["Location"])
 app.include_router(user_routes.router, prefix="/users", tags=["Users"])
+app.include_router(recipe_router, prefix="/recipes", tags=["Recipes"])
+app.include_router(debug_router, tags=["Debug"])
+app.include_router(grounded_meal_router, prefix="/meals", tags=["Meals (RAG)"])
+app.include_router(memory_router, prefix="/memory", tags=["Memory"])
 
 @app.get("/")
 def read_root():

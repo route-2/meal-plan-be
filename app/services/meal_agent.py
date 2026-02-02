@@ -3,16 +3,20 @@ import os
 from typing import Dict, List, Any, Optional
 
 from dotenv import load_dotenv
-from openai import OpenAI  # ✅ modern import
-# If you actually use Pinecone, keep these and ensure `index` is configured
+from openai import OpenAI  
+
 try:
     from app.database import index
 except Exception:
-    index = None  # allow running without Pinecone during dev
+    index = None 
 
-load_dotenv()
+load_dotenv(override=True)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # ✅ single client
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) 
+print("OPENAI_API_KEY loaded?", bool(os.getenv("OPENAI_API_KEY")))
+print("OPENAI_API_KEY starts with:", (os.getenv("OPENAI_API_KEY") or "")[:7])
+
 
 # -------- Utilities --------
 
@@ -117,7 +121,7 @@ def generate_rag_meal_plan(body: Dict[str, Any]) -> str:
     """Generate a meal plan using past meals and user preferences (tolerant to payload shapes)."""
     data = _normalize_payload(body)
 
-    # Optional: pull a past plan to condition the model
+    
     past_plan = get_past_meals(data.get("chat_id")) if data.get("chat_id") else None
     past_context = f"\nPast plan for personalization:\n{past_plan}\n" if past_plan and "No past meal plans" not in past_plan else ""
 
@@ -157,7 +161,7 @@ Keep it readable with blank lines between sections, but DO NOT use markdown form
     meal_plan = resp.choices[0].message.content
     return meal_plan
 
-# -------- Pinecone helpers (optional) --------
+
 
 def store_meal_plan(user_id: str, meal_plan: str):
     """Generate an embedding for the meal plan and store it in Pinecone (namespace 'meal-plans')."""

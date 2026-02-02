@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 class Preferences(BaseModel):
+    user_id: Optional[str] = None
     goal: Optional[str] = None
     diet: Optional[str] = None
     cuisines: List[str] = []
